@@ -1,9 +1,13 @@
-
 import React, { useEffect, useState } from 'react';
+import '../styles/chat.css';
 
 const steps = [
   { id: 'nombre', pregunta: '¿Cómo quieres que te llame?' },
-  { id: 'tono', pregunta: '¿Qué tono prefieres que use para hablarte?', opciones: ['Neutro', 'Poético', 'Amigable', 'Confianzudo', 'Chistoso'] },
+  {
+    id: 'tono',
+    pregunta: '¿Qué tono prefieres que use para hablarte?',
+    opciones: ['Neutro', 'Poético', 'Amigable', 'Confianzudo', 'Chistoso'],
+  },
 ];
 
 const ChatOnboarding = () => {
@@ -18,23 +22,34 @@ const ChatOnboarding = () => {
       setTyping(true);
       const timer = setTimeout(() => setTyping(false), 1500);
       return () => clearTimeout(timer);
+    } else {
+      // Cuando termina el onboarding, llama a LiryComposer
+      fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(responses),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setChatLog((prev) => [...prev, `🌸 ${data.response}`]);
+        });
     }
   }, [stepIndex]);
 
   const handleSubmit = () => {
     if (!userInput && !steps[stepIndex].opciones) return;
     const currentStep = steps[stepIndex];
-    const respuesta = userInput || 'Respuesta seleccionada';
-    setChatLog(prev => [...prev, `💬 ${respuesta}`]);
-    setResponses(prev => ({ ...prev, [currentStep.id]: respuesta }));
+    const respuesta = userInput || 'Respuesta';
+    setChatLog((prev) => [...prev, `💬 ${respuesta}`]);
+    setResponses((prev) => ({ ...prev, [currentStep.id]: respuesta }));
     setUserInput('');
     setStepIndex(stepIndex + 1);
   };
 
   const handleOptionClick = (option: string) => {
     const currentStep = steps[stepIndex];
-    setChatLog(prev => [...prev, `💬 ${option}`]);
-    setResponses(prev => ({ ...prev, [currentStep.id]: option }));
+    setChatLog((prev) => [...prev, `💬 ${option}`]);
+    setResponses((prev) => ({ ...prev, [currentStep.id]: option }));
     setStepIndex(stepIndex + 1);
   };
 
