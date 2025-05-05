@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import '../styles/chat.css';
 
 const steps = [
   { id: 'nombre', pregunta: '¿Cómo quieres que te llame?' },
